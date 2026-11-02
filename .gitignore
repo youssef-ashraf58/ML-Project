@@ -1,1 +1,4 @@
-/guest satisfaction Prediction .pdf
+   *.csv
+   !sample_data.csv
+   *.pdf
+   __pycache__/

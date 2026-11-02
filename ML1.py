@@ -14,6 +14,7 @@ from sklearn.pipeline import Pipeline
 from lightgbm import LGBMRegressor
 from sklearn.svm import SVR
 import warnings
+from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
@@ -28,14 +29,23 @@ This app guides you through data cleaning, preprocessing, feature engineering, m
 # Dataset upload
 # ------------------------------------------------------------------
 uploaded_file = st.file_uploader("Upload your Airbnb dataset (CSV format)", type=["csv"])
+use_sample = st.checkbox("No dataset? Use the built-in sample data", value=False)
 
-# FIX 1: stop the script until a file is uploaded, so nothing below
+# FIX 1: stop the script until data is available, so nothing below
 # runs (and crashes) when `df` does not exist yet.
-if uploaded_file is None:
-    st.info("Please upload a CSV file to get started.")
+if uploaded_file is None and not use_sample:
+    st.info("Upload a CSV file, or tick 'Use the built-in sample data' to try the app.")
     st.stop()
 
-df = pd.read_csv(uploaded_file, low_memory=False)
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file, low_memory=False)
+else:
+    sample_path = Path(__file__).parent / "sample_data.csv"
+    if not sample_path.exists():
+        st.error("sample_data.csv was not found in the repository.")
+        st.stop()
+    df = pd.read_csv(sample_path, low_memory=False)
+    st.caption("Using the built-in sample dataset.")
 st.subheader("Raw Dataset Sample Preview")
 st.write(df.head())
 st.write(f"Shape: {df.shape}")
